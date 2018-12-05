@@ -186,12 +186,6 @@ class BooksStatus extends React.Component {
                             <div className="book-authors">Mark Twain</div>
                           </div>
                         </li>
-                        <Book
-                            title= {'The Adventures of Tom Sawyer'}
-                            author={'Mark Twain'}
-                            imageURL={"http://books.google.com/books/content?id=32haAAAAMAAJ&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE72yckZ5f5bDFVIf7BGPbjA0KYYtlQ__nWB-hI_YZmZ-fScYwFy4O_fWOcPwf-pgv3pPQNJP_sT5J_xOUciD8WaKmevh1rUR-1jk7g1aCD_KeJaOpjVu0cm_11BBIUXdxbFkVMdi&source=gbs_api"}
-
-                        />
                       </ol>
                     </div>
                   </div>
@@ -204,6 +198,7 @@ class BooksStatus extends React.Component {
         )
     }
 }
+
 
 class Book extends React.Component {
     changeShelf = (e) => {
@@ -246,6 +241,48 @@ class Book extends React.Component {
   }
 }
 
+class BookShelf extends React.Component {
+    render(){
+        const books = this.props.books
+        return(
+            <div className="bookshelf">
+              <h2 className="bookshelf-title">{this.props.ShelfName}</h2>
+              <div className="bookshelf-books">
+                <ol className="books-grid">
+                  <Book/>
+                  <Book/>
+                  <Book/>
+                </ol>
+              </div>
+            </div>
+        )
+    }
+    static propTypes={
+    title: PropTypes.string.isRequired,
+    books: PropTypes.array,
+    onShelfChange: PropTypes.func.isRequired
+  }
+}
+
+class BookView extends React.Component {
+    render(){
+        return(
+            <div className="list-books">
+              <div className="list-books-title">
+                <h1>MyReads</h1>
+              </div>
+              <div className="list-books-content">
+                <BookShelf/>
+                <BookShelf/>
+                <BookShelf/>
+              </div>
+              <div className="open-search">
+                <Link to="/search">Add a book</Link>
+              </div>
+            </div>
+        )
+    }
+}
 
 class BooksApp extends React.Component {
   render() {
