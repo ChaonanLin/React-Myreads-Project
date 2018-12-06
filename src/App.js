@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { Route } from 'react-router-dom'
 import './App.css'
 import { PropTypes }  from 'prop-types'
+import * as BooksAPI from './BooksAPI'
 
 class SearchBook extends React.Component {
     render() {
@@ -31,7 +32,6 @@ class SearchBook extends React.Component {
         )
     }
 }
-
 
 class BooksStatus extends React.Component {
     render() {
@@ -202,7 +202,7 @@ class BooksStatus extends React.Component {
 
 class Book extends React.Component {
     changeShelf = (e) => {
-        this.props.onShelfChange(e.targe.value)
+        this.props.onShelfChange(e.target.value)
     }
 
     render() {
@@ -249,9 +249,17 @@ class BookShelf extends React.Component {
               <h2 className="bookshelf-title">{this.props.ShelfName}</h2>
               <div className="bookshelf-books">
                 <ol className="books-grid">
-                  <Book/>
-                  <Book/>
-                  <Book/>
+                  {books.map((book,index)=>(
+                      <Book
+                        imageURL={book.imageURL}
+                        title={book.title}
+                        author={book.author}
+                        key={index}
+                        shelf={book.shelf}
+                        onShelfChange={(shelf)=>{this.props.onShelfChange(book.index,shelf)}}
+                      />
+                  ))}
+
                 </ol>
               </div>
             </div>
@@ -264,17 +272,38 @@ class BookShelf extends React.Component {
   }
 }
 
-class BookView extends React.Component {
+class BooksView extends React.Component {
     render(){
+        const shelfs = [
+            {
+                name:'Currently Reading',
+                status:'currentlyReading'
+            },
+            {
+                name:'Want to Read',
+                status:'wantToRead'
+            },
+            {
+                name:'Read',
+                status:'read'
+            },
+        ]
+
         return(
             <div className="list-books">
               <div className="list-books-title">
                 <h1>MyReads</h1>
               </div>
               <div className="list-books-content">
-                <BookShelf/>
-                <BookShelf/>
-                <BookShelf/>
+                { shelfs.map((shelf,index)=> (
+                    < BookShelf
+                        ShelfName={shelf.name}
+                        key={index}
+                        books={this.props.books.filter((book)=>book.shelf === shelf.status)}
+                        onShelfChange={()=>{this.props.onShelfChange()}}
+                    />
+                    ))
+                }
               </div>
               <div className="open-search">
                 <Link to="/search">Add a book</Link>
@@ -282,15 +311,48 @@ class BookView extends React.Component {
             </div>
         )
     }
+    static propTypes = {
+    books: PropTypes.arrayOf(PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      shelf: PropTypes.string.isRequired,
+      imageLinks: PropTypes.object.isRequired,
+      authors: PropTypes.arrayOf(PropTypes.string.isRequired),
+      id: PropTypes.string.isRequired,
+    })),
+    onShelfChange: PropTypes.func.isRequired
+  }
 }
 
 class BooksApp extends React.Component {
+  state = {
+      books:[]
+  }
+
+  componentDidMount(){
+    this.fetchMyBooks()
+  }
+
+  fetchMyBooks = () => {
+    BooksAPI.getAll().then((books) => this.setState({ books }))
+  }
+
+  changeShelf = (index,shelf) => {
+      BooksAPI.update(index,shelf).then((book)=>{
+          this.fetchMyBooks(book)
+      })
+  }
+
   render() {
     return (
       <div className="app">
-        <Route path='/search' component={SearchBook}
+        <Route exact path='/search' component={SearchBook}
         />
-        <Route exact path='/' component={BooksStatus}
+        <Route exact path='/' render={()=>(
+            <BooksView
+                onShelfChange={this.changeShelf}
+                books={this.state.books}
+            />
+        )}
         />
       </div>
     )
