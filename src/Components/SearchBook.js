@@ -11,7 +11,7 @@ class SearchBook extends React.Component {
     }
 
     updatequery = (e) => {
-        this.setState({query:e.target.value.trim()})
+        this.setState({query:e.target.value})
         this.search(e.target.value.trim())
     }
 
