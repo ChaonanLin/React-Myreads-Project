@@ -25,13 +25,16 @@ class SearchBook extends React.Component {
             BooksAPI.search(keywords).then(
                 (books)=>{
                     if (books.length>0){
-                    this.setState({books})
-                }else {
-                    this.setState({books:[]})
-                }}
+                        var filteredBooks=books.filter(book => book.imageLinks !== undefined);
+                        console.log(filteredBooks)
+                        this.setState({books:filteredBooks})
+                    }else {
+                        this.setState({books:[]})
+                    }
+                }
             )
-            }
         }
+    }
 
     render() {
         return (
